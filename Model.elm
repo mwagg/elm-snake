@@ -12,6 +12,7 @@ type alias Game =
   , isDead : Bool
   , fruit : Maybe Block
   , ateFruit : Bool
+  , paused : Bool
   }
 
 
@@ -43,6 +44,7 @@ type Direction
 
 type ArrowKey
   = NoKey
+  | Space
   | LeftKey
   | RightKey
   | UpKey
@@ -79,12 +81,16 @@ init =
   , isDead = False
   , fruit = Nothing
   , ateFruit = False
+  , paused = False
   }
 
 
 update : Msg -> Game -> ( Game, Cmd Msg )
 update msg game =
   case msg of
+    ArrowPressed Space ->
+      ( { game | paused = not game.paused }, Cmd.none )
+
     ArrowPressed arrow ->
       ( updateDirection arrow game, Cmd.none )
 
@@ -112,7 +118,7 @@ spawnFruit game spawn =
 
 updateGame : Game -> ( Game, Cmd Msg )
 updateGame game =
-  if game.isDead then
+  if game.isDead || game.paused then
     ( game, Cmd.none )
   else
     ( game, Cmd.none )
@@ -271,40 +277,30 @@ updateSnake ( game, cmd ) =
 
     tailPositions =
       if game.ateFruit then
-        List.map position game.snake
+        game.snake
       else
         List.take ((List.length game.snake) - 1) game.snake
-          |> List.map position
+
+    tailXs =
+      List.map .x tailPositions
+
+    tailYs =
+      List.map .y tailPositions
 
     tailColors =
       if game.ateFruit then
-        List.map color game.snake
+        List.map .color game.snake
       else
         List.drop 1 game.snake
-          |> List.map color
+          |> List.map .color
 
     tail' =
-      List.map2 blockFromPositionAndColor tailPositions tailColors
+      List.map3 Block tailXs tailYs tailColors
   in
     if game.isDead then
       ( game, cmd )
     else
       ( { game | snake = head' :: tail' }, cmd )
-
-
-blockFromPositionAndColor : ( Int, Int ) -> Color -> Block
-blockFromPositionAndColor ( x, y ) color =
-  { x = x, y = y, color = color }
-
-
-position : Block -> ( Int, Int )
-position block =
-  ( block.x, block.y )
-
-
-color : Block -> Color
-color block =
-  block.color
 
 
 updateDirection : ArrowKey -> Game -> Game

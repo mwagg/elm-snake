@@ -7,27 +7,27 @@ import Task
 import Time
 
 
-subscriptions : Model.Game -> Sub Model.Msg
+subscriptions : Game -> Sub Msg
 subscriptions model =
   Sub.batch [ arrowChanged, windowDimensionsChanged, tick ]
 
 
-initCmds : Cmd Model.Msg
+initCmds : Cmd Msg
 initCmds =
   Task.perform SizeUpdated SizeUpdated Window.size
 
 
-windowDimensionsChanged : Sub Model.Msg
+windowDimensionsChanged : Sub Msg
 windowDimensionsChanged =
-  Window.resizes Model.SizeUpdated
+  Window.resizes SizeUpdated
 
 
-tick : Sub Model.Msg
+tick : Sub Msg
 tick =
-  Time.every (100 * Time.millisecond) Model.Tick
+  Time.every (100 * Time.millisecond) Tick
 
 
-arrowChanged : Sub Model.Msg
+arrowChanged : Sub Msg
 arrowChanged =
   Keyboard.downs toArrowChanged
 
@@ -35,6 +35,9 @@ arrowChanged =
 toArrowChanged : Keyboard.KeyCode -> Msg
 toArrowChanged code =
   case code of
+    32 ->
+      ArrowPressed Space
+
     37 ->
       ArrowPressed LeftKey
 

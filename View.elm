@@ -99,20 +99,3 @@ scale size =
         ( 1.0, fWidth / fHeight )
   in
     ( toPixelStr (fWidth * scaledX), toPixelStr (fHeight * scaledY) )
-
-
-glowFilter : Svg Msg
-glowFilter =
-  defs
-    []
-    [ filter
-        [ id "glow", x "-30%", y "-30%", width "160%", height "160%" ]
-        [ feGaussianBlur [ stdDeviation "10 10", result "glow" ] []
-        , feMerge
-            []
-            [ feMergeNode [ in' "glow" ] []
-            , feMergeNode [ in' "glow" ] []
-            , feMergeNode [ in' "glow" ] []
-            ]
-        ]
-    ]
